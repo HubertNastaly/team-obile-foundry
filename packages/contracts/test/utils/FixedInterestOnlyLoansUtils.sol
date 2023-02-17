@@ -1,6 +1,6 @@
 pragma solidity ^0.8.18;
 
-import {Test} from "forge-std/Test.sol";
+import {TestExtended} from "test/utils/TestExtended.sol";
 
 import {FixedInterestOnlyLoans} from "src/FixedInterestOnlyLoans.sol";
 import {IERC20WithDecimals} from "src/interfaces/IERC20WithDecimals.sol";
@@ -17,20 +17,11 @@ struct CreateLoanParams {
   bool canBeRepaidAfterDefault;
 }
 
-contract FixedInterestOnlyLoansUtils is Test {
+contract FixedInterestOnlyLoansUtils is TestExtended {
   FixedInterestOnlyLoans immutable fiol;
 
   constructor(FixedInterestOnlyLoans _fiol) {
     fiol = _fiol;
-  }
-
-  modifier from(address sender) {
-    address previousSender = msg.sender;
-    changePrank(sender);
-
-    _;
-
-    changePrank(previousSender);
   }
 
   function createLoan(CreateLoanParams memory params) external returns (uint256) {
