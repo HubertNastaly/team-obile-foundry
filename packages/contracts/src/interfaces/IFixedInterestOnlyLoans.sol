@@ -13,6 +13,7 @@ pragma solidity ^0.8.16;
 
 import {ILoans, LoanStatus} from "./ILoans.sol";
 import {IERC20WithDecimals} from "./IERC20WithDecimals.sol";
+import {IProtocolConfig} from "./IProtocolConfig.sol";
 
 interface IFixedInterestOnlyLoans is ILoans {
     struct LoanMetadata {
@@ -54,4 +55,6 @@ interface IFixedInterestOnlyLoans is ILoans {
     function loanData(uint256 loanId) external view returns (LoanMetadata memory);
 
     function updateGracePeriod(uint256 loanId, uint32 gracePeriod) external;
+
+    function initialize(IProtocolConfig _protocolConfig) external;
 }
