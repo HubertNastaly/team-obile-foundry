@@ -15,4 +15,8 @@ contract TestExtended is Test {
 
     changePrank(previousSender);
   }
+
+  function toWei(uint256 amount, uint8 decimals) internal pure returns (uint256) {
+    return amount * 10**decimals;
+  }
 }

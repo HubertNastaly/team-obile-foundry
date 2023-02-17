@@ -18,7 +18,7 @@ contract FixedInterestOnlyLoansTest is FixedInterestOnlyLoansFixture, TestExtend
 
   function setUp() public {
     deploy(); // `deploy` once and use `vm.snapshot` with `vm.revertTo`
-    utils = new FixedInterestOnlyLoansUtils(fiol);
+    utils = new FixedInterestOnlyLoansUtils(fiol, token);
     vm.startPrank(sender);
   }
 
