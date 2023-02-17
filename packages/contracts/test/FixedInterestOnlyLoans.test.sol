@@ -4,7 +4,7 @@ import {FixedInterestOnlyLoansFixture} from "test/fixtures/FixedInterestOnlyLoan
 import {CreateLoanParams} from "test/fixtures/FixedInterestOnlyLoansUtils.sol";
 
 import {IERC20WithDecimals} from "src/interfaces/IERC20WithDecimals.sol";
-import {IFixedInterestOnlyLoans} from "src/interfaces/IFixedInterestOnlyLoans.sol";
+import {LoanStatus} from "src/interfaces/IFixedInterestOnlyLoans.sol";
 
 contract FixedInterestOnlyLoansTest is FixedInterestOnlyLoansFixture {
   event LoanCreated(uint256 indexed loanId);
@@ -46,5 +46,14 @@ contract FixedInterestOnlyLoansTest is FixedInterestOnlyLoansFixture {
     expectEmit();
     emit LoanCreated(0);
     createLoan(params, sender);
+  }
+
+  function testAcceptLoanSetsAcceptedStatus() public {
+    CreateLoanParams memory params = getDefaultLoanParams();
+    uint256 loanId = createLoan(params, sender);
+
+    acceptLoan(loanId, params.recipient);
+
+    assertStatusEq(fiol.status(loanId), LoanStatus.Accepted);
   }
 }

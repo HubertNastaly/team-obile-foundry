@@ -2,9 +2,10 @@ pragma solidity ^0.8.18;
 
 import {TestExtended} from "test/utils/TestExtended.sol";
 
-import {FixedInterestOnlyLoans} from "src/FixedInterestOnlyLoans.sol";
-import {MockToken} from "src/mocks/MockToken.sol";
 import {IERC20WithDecimals} from "src/interfaces/IERC20WithDecimals.sol";
+import {LoanStatus} from "src/interfaces/IFixedInterestOnlyLoans.sol";
+import {MockToken} from "src/mocks/MockToken.sol";
+import {FixedInterestOnlyLoans, LoanStatus} from "src/FixedInterestOnlyLoans.sol";
 
 struct CreateLoanParams {
   address owner;
@@ -31,6 +32,24 @@ abstract contract FixedInterestOnlyLoansUtils is TestExtended {
     return toWei(amount, token.decimals());
   }
 
+  function assertStatusEq(LoanStatus actual, LoanStatus expected) internal {
+    assertTrue(actual == expected);
+  }
+
+  function getDefaultLoanParams() internal view returns (CreateLoanParams memory) {
+    return CreateLoanParams({
+      owner: vm.addr(2_001),
+      asset: IERC20WithDecimals(address(token)),
+      principal: toWei(1000),
+      periodCount: 2,
+      periodPayment: 100,
+      periodDuration: 2 days,
+      recipient: vm.addr(2_003),
+      gracePeriod: 1 days,
+      canBeRepaidAfterDefault: false
+    });
+  }
+
   function createLoan(CreateLoanParams memory params) internal returns (uint256) {
     return _createLoan(params);
   }
@@ -53,17 +72,7 @@ abstract contract FixedInterestOnlyLoansUtils is TestExtended {
     );
   }
 
-  function getDefaultLoanParams() internal view returns (CreateLoanParams memory) {
-    return CreateLoanParams({
-      owner: vm.addr(2_001),
-      asset: IERC20WithDecimals(address(token)),
-      principal: toWei(1000),
-      periodCount: 2,
-      periodPayment: 100,
-      periodDuration: 2 days,
-      recipient: vm.addr(2_003),
-      gracePeriod: 1 days,
-      canBeRepaidAfterDefault: false
-    });
+  function acceptLoan(uint256 loanId, address sender) from(sender) internal {
+    fiol.accept(loanId);
   }
 }
