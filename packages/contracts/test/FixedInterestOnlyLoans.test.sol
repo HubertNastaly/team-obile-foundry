@@ -28,9 +28,9 @@ contract FixedInterestOnlyLoansTest is FixedInterestOnlyLoansFixture {
 
   function testCreateLoan() public {
     CreateLoanParams memory params = getDefaultLoanParams();
-    uint256 loanId = createLoan(params, sender);
+    uint256 loanId = createLoan(params);
 
-    assertEq(fiol.creator(loanId), sender);
+    assertEq(fiol.creator(loanId), defaultSender);
     assertEq(fiol.principal(loanId), params.principal);
     assertEq(fiol.periodCount(loanId), params.periodCount);
     assertEq(fiol.periodPayment(loanId), params.periodPayment);
@@ -45,15 +45,32 @@ contract FixedInterestOnlyLoansTest is FixedInterestOnlyLoansFixture {
 
     expectEmit();
     emit LoanCreated(0);
-    createLoan(params, sender);
+    createLoan(params);
   }
 
   function testAcceptLoanSetsAcceptedStatus() public {
     CreateLoanParams memory params = getDefaultLoanParams();
-    uint256 loanId = createLoan(params, sender);
+    uint256 loanId = createLoan(params);
 
     acceptLoan(loanId, params.recipient);
 
     assertStatusEq(fiol.status(loanId), LoanStatus.Accepted);
+  }
+
+  function testStartLoan() public {
+    CreateLoanParams memory params = getDefaultLoanParams();
+    uint256 loanId = createAcceptAndStart(params);
+    assertStatusEq(fiol.status(loanId), LoanStatus.Started);
+  }
+
+  function testStartRevertsNonOwner() public {
+    CreateLoanParams memory params = getDefaultLoanParams();
+    uint256 loanId = createLoan(params);
+
+    acceptLoan(loanId, params.recipient);
+
+    setNewPrank(vm.addr(3_001));
+    vm.expectRevert(bytes("FIOL: Not a loan owner"));
+    startLoan(loanId);
   }
 }

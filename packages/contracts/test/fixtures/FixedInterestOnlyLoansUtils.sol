@@ -1,11 +1,13 @@
 pragma solidity ^0.8.18;
 
+import "forge-std/console.sol";
+
 import {TestExtended} from "test/utils/TestExtended.sol";
 
 import {IERC20WithDecimals} from "src/interfaces/IERC20WithDecimals.sol";
 import {LoanStatus} from "src/interfaces/IFixedInterestOnlyLoans.sol";
 import {MockToken} from "src/mocks/MockToken.sol";
-import {FixedInterestOnlyLoans, LoanStatus} from "src/FixedInterestOnlyLoans.sol";
+import {FixedInterestOnlyLoans} from "src/FixedInterestOnlyLoans.sol";
 
 struct CreateLoanParams {
   address owner;
@@ -38,7 +40,7 @@ abstract contract FixedInterestOnlyLoansUtils is TestExtended {
 
   function getDefaultLoanParams() internal view returns (CreateLoanParams memory) {
     return CreateLoanParams({
-      owner: vm.addr(2_001),
+      owner: defaultSender,
       asset: IERC20WithDecimals(address(token)),
       principal: toWei(1000),
       periodCount: 2,
@@ -50,15 +52,11 @@ abstract contract FixedInterestOnlyLoansUtils is TestExtended {
     });
   }
 
-  function createLoan(CreateLoanParams memory params) internal returns (uint256) {
-    return _createLoan(params);
-  }
-
   function createLoan(CreateLoanParams memory params, address sender) from(sender) internal returns (uint256) {
-    return _createLoan(params);
+    return createLoan(params);
   }
 
-  function _createLoan(CreateLoanParams memory params) private returns (uint256) {
+  function createLoan(CreateLoanParams memory params) internal returns (uint256) {
     return fiol.create(
       params.owner,
       params.asset,
@@ -74,5 +72,16 @@ abstract contract FixedInterestOnlyLoansUtils is TestExtended {
 
   function acceptLoan(uint256 loanId, address sender) from(sender) internal {
     fiol.accept(loanId);
+  }
+
+  function startLoan(uint256 loanId) internal {
+    fiol.start(loanId);
+  }
+
+  function createAcceptAndStart(CreateLoanParams memory params) internal returns (uint256) {
+    uint256 loanId = createLoan(params);
+    acceptLoan(loanId, params.recipient);
+    startLoan(loanId);
+    return loanId;
   }
 }
