@@ -9,8 +9,15 @@ import {LoanStatus} from "src/interfaces/IFixedInterestOnlyLoans.sol";
 contract FixedInterestOnlyLoansTest is FixedInterestOnlyLoansFixture {
   event LoanCreated(uint256 indexed loanId);
 
-  function setUp() public {
+  uint256 snapshot;
+
+  constructor() {
     loadFixture();
+    snapshot = vm.snapshot();
+  }
+
+  function setUp() public {
+    vm.revertTo(snapshot);
   }
 
   function testCreateRevertsAddressZero() public {

@@ -7,7 +7,6 @@ contract FixedInterestOnlyLoansFixture is FixedInterestOnlyLoansDeploy, FixedInt
   function loadFixture() internal {
     deploy(); // `deploy` once and use `vm.snapshot` with `vm.revertTo`
     initializeUtils(fiol, token);
-
     setNewPrank(defaultSender);
   }
 }
