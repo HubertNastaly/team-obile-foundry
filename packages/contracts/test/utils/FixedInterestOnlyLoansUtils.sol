@@ -24,19 +24,25 @@ contract FixedInterestOnlyLoansUtils is Test {
     fiol = _fiol;
   }
 
-  function createLoan(CreateLoanParams memory params) external returns (uint256) {
-    return _createLoan(params, address(this));
-  }
-
-  function createLoan(CreateLoanParams memory params, address sender) external returns (uint256) {
-    return _createLoan(params, sender);
-  }
-
-  function _createLoan(CreateLoanParams memory params, address sender) private returns (uint256) {
+  modifier from(address sender) {
     address previousSender = msg.sender;
     changePrank(sender);
 
-    uint256 loanId = fiol.create(
+    _;
+
+    changePrank(previousSender);
+  }
+
+  function createLoan(CreateLoanParams memory params) external returns (uint256) {
+    return _createLoan(params);
+  }
+
+  function createLoan(CreateLoanParams memory params, address sender) from(sender) external returns (uint256) {
+    return _createLoan(params);
+  }
+
+  function _createLoan(CreateLoanParams memory params) private returns (uint256) {
+    return fiol.create(
       params.owner,
       params.asset,
       params.principal,
@@ -47,10 +53,6 @@ contract FixedInterestOnlyLoansUtils is Test {
       params.gracePeriod,
       params.canBeRepaidAfterDefault
     );
-
-    changePrank(previousSender);
-
-    return loanId;
   }
 
   function getDefaultLoanParams() external pure returns (CreateLoanParams memory) {
