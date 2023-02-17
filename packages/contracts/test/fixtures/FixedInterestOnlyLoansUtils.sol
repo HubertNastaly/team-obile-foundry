@@ -18,24 +18,24 @@ struct CreateLoanParams {
   bool canBeRepaidAfterDefault;
 }
 
-contract FixedInterestOnlyLoansUtils is TestExtended {
-  FixedInterestOnlyLoans immutable fiol;
-  MockToken immutable token;
+abstract contract FixedInterestOnlyLoansUtils is TestExtended {
+  FixedInterestOnlyLoans private fiol;
+  MockToken private token;
 
-  constructor(FixedInterestOnlyLoans _fiol, MockToken _token) {
+  function initializeUtils(FixedInterestOnlyLoans _fiol, MockToken _token) internal {
     fiol = _fiol;
     token = _token;
   }
 
-  function toWei(uint256 amount) public view returns (uint256) {
+  function toWei(uint256 amount) internal view returns (uint256) {
     return toWei(amount, token.decimals());
   }
 
-  function createLoan(CreateLoanParams memory params) external returns (uint256) {
+  function createLoan(CreateLoanParams memory params) internal returns (uint256) {
     return _createLoan(params);
   }
 
-  function createLoan(CreateLoanParams memory params, address sender) from(sender) external returns (uint256) {
+  function createLoan(CreateLoanParams memory params, address sender) from(sender) internal returns (uint256) {
     return _createLoan(params);
   }
 
@@ -53,7 +53,7 @@ contract FixedInterestOnlyLoansUtils is TestExtended {
     );
   }
 
-  function getDefaultLoanParams() external view returns (CreateLoanParams memory) {
+  function getDefaultLoanParams() internal view returns (CreateLoanParams memory) {
     return CreateLoanParams({
       owner: vm.addr(2_001),
       asset: IERC20WithDecimals(address(token)),

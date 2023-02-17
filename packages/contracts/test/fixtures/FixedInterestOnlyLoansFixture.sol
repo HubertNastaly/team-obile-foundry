@@ -1,32 +1,15 @@
 pragma solidity ^0.8.18;
 
-import {MockToken} from "src/mocks/MockToken.sol";
-import {ProxyWrapper} from "src/proxy/ProxyWrapper.sol";
-import {FixedInterestOnlyLoans, IFixedInterestOnlyLoans} from "src/FixedInterestOnlyLoans.sol";
-import {ProtocolConfig} from "src/ProtocolConfig.sol";
+import {FixedInterestOnlyLoansDeploy} from "test/fixtures/FixedInterestOnlyLoansDeploy.sol";
+import {FixedInterestOnlyLoansUtils} from "test/fixtures/FixedInterestOnlyLoansUtils.sol";
 
-abstract contract FixedInterestOnlyLoansFixture {
-  uint8 constant private tokenDecimals = 8;
+contract FixedInterestOnlyLoansFixture is FixedInterestOnlyLoansDeploy, FixedInterestOnlyLoansUtils {
+  address immutable sender = vm.addr(1_001);
 
-  FixedInterestOnlyLoans internal fiol;
-  MockToken internal token;
+  function loadFixture() internal {
+    deploy(); // `deploy` once and use `vm.snapshot` with `vm.revertTo`
+    initializeUtils(fiol, token);
 
-  function deploy() internal {
-    FixedInterestOnlyLoans fiolImplementation = new FixedInterestOnlyLoans();
-    ProtocolConfig protocolConfig = new ProtocolConfig();
-
-    fiol = FixedInterestOnlyLoans(
-      address(
-        new ProxyWrapper(
-          address(fiolImplementation),
-          abi.encodeWithSelector(
-            IFixedInterestOnlyLoans.initialize.selector,
-            protocolConfig
-          )
-        )
-      )
-    );
-
-    token = new MockToken(tokenDecimals);
+    vm.startPrank(sender);
   }
 }

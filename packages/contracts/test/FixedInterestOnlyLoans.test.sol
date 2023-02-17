@@ -1,33 +1,24 @@
 pragma solidity ^0.8.18;
 
-import {console} from "forge-std/console.sol";
-
 import {FixedInterestOnlyLoansFixture} from "test/fixtures/FixedInterestOnlyLoansFixture.sol";
-import {CreateLoanParams, FixedInterestOnlyLoansUtils} from "test/utils/FixedInterestOnlyLoansUtils.sol";
-import {TestExtended} from "test/utils/TestExtended.sol";
+import {CreateLoanParams} from "test/fixtures/FixedInterestOnlyLoansUtils.sol";
 
 import {IERC20WithDecimals} from "src/interfaces/IERC20WithDecimals.sol";
 import {IFixedInterestOnlyLoans} from "src/interfaces/IFixedInterestOnlyLoans.sol";
 
-contract FixedInterestOnlyLoansTest is FixedInterestOnlyLoansFixture, TestExtended {
-  address immutable sender = vm.addr(1_001);
-
-  FixedInterestOnlyLoansUtils private utils;
-
+contract FixedInterestOnlyLoansTest is FixedInterestOnlyLoansFixture {
   event LoanCreated(uint256 indexed loanId);
 
   function setUp() public {
-    deploy(); // `deploy` once and use `vm.snapshot` with `vm.revertTo`
-    utils = new FixedInterestOnlyLoansUtils(fiol, token);
-    vm.startPrank(sender);
+    loadFixture();
   }
 
   function testCreateRevertsAddressZero() public {
-    CreateLoanParams memory params = utils.getDefaultLoanParams();
+    CreateLoanParams memory params = getDefaultLoanParams();
     params.recipient = address(0);
 
     vm.expectRevert(bytes('FIOL: Invalid recipient address'));
-    utils.createLoan(params);
+    createLoan(params);
   }
 
   function testInitializeSetsNameAndSymbol() public {
@@ -36,8 +27,8 @@ contract FixedInterestOnlyLoansTest is FixedInterestOnlyLoansFixture, TestExtend
   }
 
   function testCreateLoan() public {
-    CreateLoanParams memory params = utils.getDefaultLoanParams();
-    uint256 loanId = utils.createLoan(params, sender);
+    CreateLoanParams memory params = getDefaultLoanParams();
+    uint256 loanId = createLoan(params, sender);
 
     assertEq(fiol.creator(loanId), sender);
     assertEq(fiol.principal(loanId), params.principal);
@@ -50,10 +41,10 @@ contract FixedInterestOnlyLoansTest is FixedInterestOnlyLoansFixture, TestExtend
   }
 
   function testCreateEmits() public {
-    CreateLoanParams memory params = utils.getDefaultLoanParams();
+    CreateLoanParams memory params = getDefaultLoanParams();
 
     expectEmit();
     emit LoanCreated(0);
-    utils.createLoan(params, sender);
+    createLoan(params, sender);
   }
 }
