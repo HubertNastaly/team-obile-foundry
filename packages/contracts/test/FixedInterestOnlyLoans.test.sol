@@ -28,4 +28,37 @@ contract FixedInterestOnlyLoansTest is FixedInterestOnlyLoansFixture, Test {
     assertEq(fiol.name(), 'FixedInterestOnlyLoans');
     assertEq(fiol.symbol(), 'FIOL');
   }
+
+  function testCreateLoan() public {
+    address owner = vm.addr(1);
+    IERC20WithDecimals asset = IERC20WithDecimals(vm.addr(2));
+    uint256 principal = 1000;
+    uint16 periodCount = 2;
+    uint256 periodPayment = 100;
+    uint32 periodDuration = 2 days;
+    address recipient = vm.addr(3);
+    uint32 gracePeriod = 1 days;
+    bool canBeRepaidAfterDefault = false;
+    
+    uint256 loanId = fiol.create(
+      owner,
+      asset,
+      principal,
+      periodCount,
+      periodPayment,
+      periodDuration,
+      recipient,
+      gracePeriod,
+      canBeRepaidAfterDefault
+    );
+
+    assertEq(fiol.creator(loanId), address(this));
+    assertEq(fiol.principal(loanId), principal);
+    assertEq(fiol.periodCount(loanId), periodCount);
+    assertEq(fiol.periodPayment(loanId), periodPayment);
+    assertEq(fiol.periodDuration(loanId), periodDuration);
+    assertEq(fiol.recipient(loanId), recipient);
+    assertEq(fiol.gracePeriod(loanId), gracePeriod);
+    assertEq(fiol.canBeRepaidAfterDefault(loanId), canBeRepaidAfterDefault);
+  }
 }
