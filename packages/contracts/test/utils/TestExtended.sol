@@ -10,6 +10,10 @@ contract TestExtended is Test {
     vm.expectEmit(true, true, true, true);
   }
 
+  function expectRevert(string memory revertMessage) internal {
+    vm.expectRevert(bytes(revertMessage));
+  }
+
   function setNewPrank(address newPrank) internal {
     currentPrank = newPrank;
     changePrank(currentPrank);

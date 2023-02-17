@@ -17,7 +17,7 @@ contract FixedInterestOnlyLoansTest is FixedInterestOnlyLoansFixture {
     CreateLoanParams memory params = getDefaultLoanParams();
     params.recipient = address(0);
 
-    vm.expectRevert(bytes('FIOL: Invalid recipient address'));
+    expectRevert("FIOL: Invalid recipient address");
     createLoan(params);
   }
 
@@ -70,7 +70,27 @@ contract FixedInterestOnlyLoansTest is FixedInterestOnlyLoansFixture {
     acceptLoan(loanId, params.recipient);
 
     setNewPrank(vm.addr(3_001));
-    vm.expectRevert(bytes("FIOL: Not a loan owner"));
+    expectRevert("FIOL: Not a loan owner");
     startLoan(loanId);
+  }
+
+  function testMarkAsDefaultedTooEarly() public {
+    CreateLoanParams memory params = getDefaultLoanParams();
+    uint256 loanId = createAcceptAndStart(params);
+
+    skip(params.periodDuration + params.gracePeriod);
+
+    expectRevert("FIOL: Too early to default");
+    fiol.markAsDefaulted(loanId);
+  }
+
+  function testMarkAsDefaulted() public {
+    CreateLoanParams memory params = getDefaultLoanParams();
+    uint256 loanId = createAcceptAndStart(params);
+
+    skip(params.periodDuration + params.gracePeriod + 1);
+    fiol.markAsDefaulted(loanId);
+
+    assertStatusEq(fiol.status(loanId), LoanStatus.Defaulted);
   }
 }
