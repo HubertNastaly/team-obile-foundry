@@ -7,7 +7,7 @@ import {ProxyWrapper} from "src/proxy/ProxyWrapper.sol";
 abstract contract FixedInterestOnlyLoansFixture {
   FixedInterestOnlyLoans internal fiol;
 
-  function deploy() public {
+  function deploy() internal {
     FixedInterestOnlyLoans fiolImplementation = new FixedInterestOnlyLoans();
     ProtocolConfig protocolConfig = new ProtocolConfig();
 

@@ -6,7 +6,9 @@
   "scripts": {
     "build": "forge build",
     "test": "forge test",
-    "test:debug": "forge test -vv",
+    "test:log": "forge test -vv",
+    "test:traceFailing": "forge test -vvv",
+    "test:debug": "forge test --debug",
     "deploy": "zx ./devScripts/deploy.mjs"
   },
   "keywords": [],
