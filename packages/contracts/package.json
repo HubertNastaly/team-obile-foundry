@@ -9,6 +9,7 @@
     "test:log": "forge test -vv",
     "test:traceFailing": "forge test -vvv",
     "test:debug": "forge test --debug",
+    "test:gasReport": "forge test --gas-report",
     "deploy": "zx ./devScripts/deploy.mjs"
   },
   "keywords": [],
